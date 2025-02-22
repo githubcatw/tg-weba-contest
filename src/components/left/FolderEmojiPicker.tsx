@@ -99,6 +99,15 @@ const FolderEmojiPicker: FC<OwnProps & StateProps> = ({
   const sharedCanvasRef = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line no-null/no-null
   const sharedCanvasHqRef = useRef<HTMLCanvasElement>(null);
+  
+  const {
+    activeSetIndex,
+    observeIntersectionForSet,
+    observeIntersectionForPlayingItems,
+    observeIntersectionForShowingItems,
+    observeIntersectionForCovers,
+    selectStickerSet,
+  } = useStickerPickerObservers(containerRef, headerRef, "emojipicker", false);
 
   const [categories, setCategories] = useState<EmojiCategoryData[]>();
   const [emojis, setEmojis] = useState<AllEmojis>();
@@ -242,22 +251,13 @@ const FolderEmojiPicker: FC<OwnProps & StateProps> = ({
         faded
         color="translucent"
         // eslint-disable-next-line react/jsx-no-bind
-        onClick={() => selectCategory(index, false)}
+        onClick={() => {selectCategory(index, false)}}
         ariaLabel={category.name}
       >
         <Icon name={icon} />
       </Button>
     );
   }
-
-  const {
-    activeSetIndex,
-    observeIntersectionForSet,
-    observeIntersectionForPlayingItems,
-    observeIntersectionForShowingItems,
-    observeIntersectionForCovers,
-    selectStickerSet,
-  } = useStickerPickerObservers(containerRef, headerRef, "emojipicker", false);
 
   function renderEmojiCategoryIcon(stickerSet: ApiStickerSet, index: number) {
     const firstSticker = stickerSet.stickers?.[0];
@@ -273,8 +273,9 @@ const FolderEmojiPicker: FC<OwnProps & StateProps> = ({
           faded
           color="translucent"
           // eslint-disable-next-line react/jsx-no-bind
-          onClick={() => selectCategory(index, true)}
+          onClick={() => {selectCategory(index, true)}}
           ariaLabel={stickerSet.title}
+          id={`EmojiPicker-emoji-sticker-set-${index}`}
         >
             <StickerSetCover
               stickerSet={stickerSet as ApiStickerSet}
@@ -300,8 +301,9 @@ const FolderEmojiPicker: FC<OwnProps & StateProps> = ({
         isCurrentUserPremium
         sharedCanvasRef={withSharedCanvas ? (isHq ? sharedCanvasHqRef : sharedCanvasRef) : undefined}
         withTranslucentThumb={isTranslucent}
-        onClick={selectStickerSet}
+        onClick={() => {selectCategory(index, true)}}
         clickArg={index}
+        id={`EmojiPicker-emoji-sticker-set-${index}`}
         forcePlayback
       />
     );
