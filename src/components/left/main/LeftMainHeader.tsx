@@ -156,28 +156,6 @@ const LeftMainHeader: FC<OwnProps & StateProps> = ({
     ...(IS_APP && { 'Mod+L': handleLockScreenHotkey }),
   } : undefined), [canSetPasscode]));
 
-  const MainButton: FC<{ onTrigger: () => void; isOpen?: boolean }> = useMemo(() => {
-    return ({ onTrigger, isOpen }) => (
-      <Button
-        round
-        ripple={hasMenu && !isMobile}
-        size="smaller"
-        color="translucent"
-        className={isOpen ? 'active' : ''}
-        // eslint-disable-next-line react/jsx-no-bind
-        onClick={hasMenu ? onTrigger : () => onReset()}
-        ariaLabel={hasMenu ? oldLang('AccDescrOpenMenu2') : 'Return to chat list'}
-      >
-        <div className={buildClassName(
-          'animated-menu-icon',
-          !hasMenu && 'state-back',
-          shouldSkipTransition && 'no-animation',
-        )}
-        />
-      </Button>
-    );
-  }, [hasMenu, isMobile, oldLang, onReset, shouldSkipTransition]);
-
   const handleSearchFocus = useLastCallback(() => {
     if (!searchQuery) {
       onSearchQuery('');
@@ -253,28 +231,6 @@ const LeftMainHeader: FC<OwnProps & StateProps> = ({
     <div className="LeftMainHeader">
       <div id="LeftMainHeader" className="left-header" ref={headerRef}>
         {oldLang.isRtl && <div className="DropdownMenuFiller" />}
-        <DropdownMenu
-          trigger={MainButton}
-          footer={`${APP_NAME} ${versionString}`}
-          className={buildClassName(
-            'main-menu',
-            oldLang.isRtl && 'rtl',
-            shouldHideSearch && oldLang.isRtl && 'right-aligned',
-            shouldDisableDropdownMenuTransitionRef.current && oldLang.isRtl && 'disable-transition',
-          )}
-          forceOpen={isBotMenuOpen}
-          positionX={shouldHideSearch && oldLang.isRtl ? 'right' : 'left'}
-          transformOriginX={IS_ELECTRON && IS_MAC_OS && !isFullscreen ? 90 : undefined}
-          onTransitionEnd={oldLang.isRtl ? handleDropdownMenuTransitionEnd : undefined}
-        >
-          <LeftSideMenuItems
-            onSelectArchived={onSelectArchived}
-            onSelectContacts={onSelectContacts}
-            onSelectSettings={onSelectSettings}
-            onBotMenuOpened={markBotMenuOpen}
-            onBotMenuClosed={unmarkBotMenuOpen}
-          />
-        </DropdownMenu>
         <SearchInput
           inputId="telegram-search-input"
           resultsItemSelector=".LeftSearch .ListItem-button"

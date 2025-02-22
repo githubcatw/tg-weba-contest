@@ -97,10 +97,6 @@ const ChatFolders: FC<OwnProps & StateProps> = ({
 
   const lang = useLang();
 
-  useEffect(() => {
-    loadChatFolders();
-  }, []);
-
   const {
     ref,
     shouldRender: shouldRenderStoryRibbon,
@@ -213,10 +209,6 @@ const ChatFolders: FC<OwnProps & StateProps> = ({
     displayedFolders, maxFolders, folderCountersById, lang, chatFoldersById, maxChatLists, folderInvitesById,
     maxFolderInvites,
   ]);
-
-  const handleSwitchTab = useLastCallback((index: number) => {
-    setActiveChatFolder({ activeChatFolder: index }, { forceOnHeavyAnimation: true });
-  });
 
   // Prevent `activeTab` pointing at non-existing folder after update
   useEffect(() => {
@@ -334,16 +326,6 @@ const ChatFolders: FC<OwnProps & StateProps> = ({
       )}
     >
       {shouldRenderStoryRibbon && <StoryRibbon isClosing={isStoryRibbonClosing} />}
-      {shouldRenderFolders ? (
-        <TabList
-          contextRootElementSelector="#LeftColumn"
-          tabs={folderTabs}
-          activeTab={activeChatFolder}
-          onSwitchTab={handleSwitchTab}
-        />
-      ) : shouldRenderPlaceholder ? (
-        <div ref={placeholderRef} className="tabs-placeholder" />
-      ) : undefined}
       <Transition
         ref={transitionRef}
         name={shouldSkipHistoryAnimations ? 'none' : lang.isRtl ? 'slideOptimizedRtl' : 'slideOptimized'}

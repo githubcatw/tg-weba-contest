@@ -117,3 +117,9 @@
   flex-direction: column;
   overflow: hidden;
 }
+.SettingsFolderEdit_picker {
+  .bubble {
+    width: calc(var(--symbol-menu-width) + var(--scrollbar-width));
+    height: calc(var(--symbol-menu-height));
+  }
+}

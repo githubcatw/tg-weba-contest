@@ -52,7 +52,6 @@ type OwnProps = {
   isReactionPicker?: boolean;
   isCurrentUserPremium?: boolean;
   shouldHideHeader?: boolean;
-  shouldShowSimpleHeader?: boolean;
   selectedReactionIds?: string[];
   withDefaultTopicIcon?: boolean;
   withDefaultStatusIcon?: boolean;
@@ -82,7 +81,7 @@ const ITEMS_MINI_MOBILE_PER_ROW_FALLBACK = 6;
 const MOBILE_WIDTH_THRESHOLD_PX = 440;
 const MINI_MOBILE_WIDTH_THRESHOLD_PX = 362;
 
-const StickerSet: FC<OwnProps> = ({
+const EmojiSet: FC<OwnProps> = ({
   stickerSet,
   loadAndPlay,
   index,
@@ -95,7 +94,6 @@ const StickerSet: FC<OwnProps> = ({
   isReactionPicker,
   isCurrentUserPremium,
   shouldHideHeader,
-  shouldShowSimpleHeader,
   withDefaultTopicIcon,
   selectedReactionIds,
   withDefaultStatusIcon,
@@ -258,7 +256,7 @@ const StickerSet: FC<OwnProps> = ({
     favoriteStickers ? new Set(favoriteStickers.map(({ id }) => id)) : undefined
   ), [favoriteStickers]);
   const withAddSetButton = !shouldHideHeader && !isRecent && isEmoji && !isPopular && !isChatEmojiSet
-    && !shouldShowSimpleHeader && (!isInstalled || (!isCurrentUserPremium && !isSavedMessages));
+    && (!isInstalled || (!isCurrentUserPremium && !isSavedMessages));
   const addSetButtonText = useMemo(() => {
     if (isLocked) {
       if (isInstalled) return lang('lng_emoji_premium_restore');
@@ -430,7 +428,7 @@ const StickerSet: FC<OwnProps> = ({
   );
 };
 
-export default memo(StickerSet);
+export default memo(EmojiSet);
 
 function getItemsPerRowFallback(windowWidth: number): number {
   return windowWidth > MOBILE_WIDTH_THRESHOLD_PX

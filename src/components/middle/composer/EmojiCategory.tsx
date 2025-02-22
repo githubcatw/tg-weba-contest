@@ -3,7 +3,7 @@ import React, { memo, useRef } from '../../../lib/teact/teact';
 
 import type { ObserveFn } from '../../../hooks/useIntersectionObserver';
 
-import { EMOJI_SIZE_PICKER, RECENT_SYMBOL_SET_ID } from '../../../config';
+import { EMOJI_SIZE_PICKER, FOLDER_ICON_EMOTICONS, FOLDER_SYMBOL_SET_ID, RECENT_SYMBOL_SET_ID, UNNAMED_SYMBOL_SETS } from '../../../config';
 import buildClassName from '../../../util/buildClassName';
 import windowSize from '../../../util/windowSize';
 import { REM } from '../../common/helpers/mediaDimensions';
@@ -14,6 +14,7 @@ import useMediaTransitionDeprecated from '../../../hooks/useMediaTransitionDepre
 import useOldLang from '../../../hooks/useOldLang';
 
 import EmojiButton from './EmojiButton';
+import IconButton from './IconButton';
 
 const EMOJIS_PER_ROW_ON_DESKTOP = 8;
 const EMOJI_MARGIN = 0.625 * REM;
@@ -27,7 +28,7 @@ type OwnProps = {
   allEmojis: AllEmojis;
   observeIntersection: ObserveFn;
   shouldRender: boolean;
-  onEmojiSelect: (emoji: string, name: string) => void;
+  onEmojiSelect: (emoji: string, name: string, addToEnd: boolean) => void;
 };
 
 const EmojiCategory: FC<OwnProps> = ({
@@ -58,11 +59,13 @@ const EmojiCategory: FC<OwnProps> = ({
       id={`emoji-category-${index}`}
       className="symbol-set"
     >
-      <div className="symbol-set-header">
-        <p className="symbol-set-name" dir="auto">
-          {lang(category.id === RECENT_SYMBOL_SET_ID ? 'RecentStickers' : `Emoji${index}`)}
-        </p>
-      </div>
+      {!UNNAMED_SYMBOL_SETS.includes(category.id) && (
+        <div className="symbol-set-header">
+          <p className="symbol-set-name" dir="auto">
+            {lang(category.id === RECENT_SYMBOL_SET_ID ? 'RecentStickers' : `Emoji${index}`)}
+          </p>
+        </div>
+      )}
       <div
         className={buildClassName('symbol-set-container', transitionClassNames)}
         style={`height: ${height}px;`}
@@ -78,11 +81,21 @@ const EmojiCategory: FC<OwnProps> = ({
           // For now, we select only the first emoji with 'neutral' skin.
           const displayedEmoji = 'id' in emoji ? emoji : emoji[1];
 
+          if (category.id == FOLDER_SYMBOL_SET_ID) {
+            return (
+              <IconButton
+                key={FOLDER_ICON_EMOTICONS[displayedEmoji.native]}
+                icon={FOLDER_ICON_EMOTICONS[displayedEmoji.native]}
+                onClick={(icon) => {onEmojiSelect(displayedEmoji.native, name, false)}}
+              />
+            )
+          }
+
           return (
             <EmojiButton
               key={displayedEmoji.id}
               emoji={displayedEmoji}
-              onClick={onEmojiSelect}
+              onClick={(emoji, name) => {onEmojiSelect(emoji, name, true)}}
             />
           );
         })}

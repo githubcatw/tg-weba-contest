@@ -4,7 +4,7 @@ import React, {
 } from '../../../../lib/teact/teact';
 import { getActions, getGlobal, withGlobal } from '../../../../global';
 
-import type { ApiChatlistExportedInvite } from '../../../../api/types';
+import type { ApiChatlistExportedInvite, ApiSticker } from '../../../../api/types';
 import type {
   FolderEditDispatch,
   FoldersState,
@@ -18,10 +18,14 @@ import { findIntersectionWithSet } from '../../../../util/iteratees';
 import { MEMO_EMPTY_ARRAY } from '../../../../util/memo';
 import { CUSTOM_PEER_EXCLUDED_CHAT_TYPES, CUSTOM_PEER_INCLUDED_CHAT_TYPES } from '../../../../util/objects/customPeer';
 import { LOCAL_TGS_URLS } from '../../../common/helpers/animatedAssets';
+import { IS_TOUCH_ENV } from '../../../../util/windowEnvironment';
 
 import { selectChatFilters } from '../../../../hooks/reducers/useFoldersReducer';
 import useHistoryBack from '../../../../hooks/useHistoryBack';
 import useOldLang from '../../../../hooks/useOldLang';
+import useFlag from '../../../../hooks/useFlag';
+import useAppLayout from '../../../../hooks/useAppLayout';
+import useMouseInside from '../../../../hooks/useMouseInside';
 
 import AnimatedIcon from '../../../common/AnimatedIcon';
 import GroupChatInfo from '../../../common/GroupChatInfo';
@@ -31,6 +35,10 @@ import FloatingActionButton from '../../../ui/FloatingActionButton';
 import InputText from '../../../ui/InputText';
 import ListItem from '../../../ui/ListItem';
 import Spinner from '../../../ui/Spinner';
+import Button from '../../../ui/Button';
+import DropdownMenu from '../../../ui/DropdownMenu';
+import FolderEmojiPicker from '../../FolderEmojiPicker';
+import FolderEmoticon from '../../../ui/FolderEmoticon';
 
 type OwnProps = {
   state: FoldersState;
@@ -94,6 +102,15 @@ const SettingsFoldersEdit: FC<OwnProps & StateProps> = ({
 
   const [isIncludedChatsListExpanded, setIsIncludedChatsListExpanded] = useState(false);
   const [isExcludedChatsListExpanded, setIsExcludedChatsListExpanded] = useState(false);
+  
+  const [isPickerOpen, openPicker, closePicker] = useFlag();
+
+
+  const handleClose = useCallback(() => {
+    closePicker();
+  }, [])
+  const { isMobile } = useAppLayout();
+  const [handleMouseEnter, handleMouseLeave] = useMouseInside(isPickerOpen, handleClose, undefined, isMobile);
 
   useEffect(() => {
     if (isRemoved) {
@@ -279,6 +296,38 @@ const SettingsFoldersEdit: FC<OwnProps & StateProps> = ({
     );
   }
 
+  const handleEmojiSelect = useCallback((emoji: string, id: string, addToEnd: boolean) => {
+    dispatch({ type: 'setEmoticon', payload: {emoji: emoji, addToEnd: addToEnd} });
+  }, [])
+
+  const handleEmojiStickerSelect = useCallback((emoji: ApiSticker) => {
+    dispatch({ type: 'setCustomEmoticon', payload: emoji });
+  }, [])
+    
+  const tempButton: FC<{ onTrigger: () => void; isOpen?: boolean }> = useMemo(() => {
+    return ({ onTrigger, isOpen }) => (
+      <Button
+        round
+        size="smaller"
+        color="translucent"
+        className={isOpen ? 'active' : ''}
+        // eslint-disable-next-line react/jsx-no-bind
+        onClick={onTrigger}
+      >
+        <FolderEmoticon
+          character={state.folder.title.text[state.folder.title.text.length - 1]}
+          entity={state.folder.title.entities
+            ? state.folder.title.entities[state.folder.title.entities.length - 1]
+            : undefined
+          }
+          emoticon={state.folder.emoticon}
+          emojiSize={20}
+          applyEmojiSize
+        />
+      </Button>
+    );
+  }, [lang, onReset, state.folder]);
+
   return (
     <div className="settings-fab-wrapper">
       <div className="settings-content no-border custom-scroll">
@@ -302,6 +351,20 @@ const SettingsFoldersEdit: FC<OwnProps & StateProps> = ({
             value={state.folder.title.text}
             onChange={handleChange}
             error={state.error && state.error === ERROR_NO_TITLE ? ERROR_NO_TITLE : undefined}
+            endIcon = {(
+              <DropdownMenu
+                trigger={tempButton}
+                onClose={handleClose}
+                positionX="right"
+                className={"SettingsFolderEdit_picker"}
+              >
+                <FolderEmojiPicker
+                  onEmojiSelect={handleEmojiSelect}
+                  onEmojiStickerSelect={handleEmojiStickerSelect}
+                  loadAndPlay={true}
+                ></FolderEmojiPicker>
+              </DropdownMenu>
+            )}
           />
         </div>
 

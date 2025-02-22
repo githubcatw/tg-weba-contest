@@ -373,7 +373,7 @@ function organizeEntity(
   };
 }
 
-function processEntity({
+export function processEntity({
   entity,
   entityContent,
   nestedEntityContent,

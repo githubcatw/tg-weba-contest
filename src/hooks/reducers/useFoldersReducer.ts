@@ -1,12 +1,16 @@
 import { getGlobal } from '../../global';
 
-import type { ApiChatFolder } from '../../api/types';
+import { ApiMessageEntityTypes, type ApiChatFolder, type ApiSticker } from '../../api/types';
 import type { IconName } from '../../types/icons';
 import type { Dispatch, StateReducer } from '../useReducer';
 
 import { selectChat } from '../../global/selectors';
 import { omit, pick } from '../../util/iteratees';
 import useReducer from '../useReducer';
+import { buildApiMessageEntity } from '../../api/gramjs/apiBuilders/common';
+import { Api } from '../../lib/gramjs';
+import parseHtmlAsFormattedText from '../../util/parseHtmlAsFormattedText';
+import { buildCustomEmojiHtml } from '../../components/middle/composer/helpers/customEmoji';
 
 export type FolderChatType = {
   icon: IconName;
@@ -109,14 +113,14 @@ export type FoldersState = {
   error?: string;
   folderId?: number;
   chatFilter: string;
-  folder: Omit<ApiChatFolder, 'id' | 'description' | 'emoticon'>;
+  folder: Omit<ApiChatFolder, 'id' | 'description'>;
   includeFilters?: FolderIncludeFilters;
   excludeFilters?: FolderExcludeFilters;
 };
 export type FoldersActions = (
   'setTitle' | 'saveFilters' | 'editFolder' | 'reset' | 'setChatFilter' | 'setIsLoading' | 'setError' |
   'editIncludeFilters' | 'editExcludeFilters' | 'setIncludeFilters' | 'setExcludeFilters' | 'setIsTouched' |
-  'setFolderId' | 'setIsChatlist'
+  'setFolderId' | 'setIsChatlist' | 'setEmoticon' | 'setCustomEmoticon'
   );
 export type FolderEditDispatch = Dispatch<FoldersState, FoldersActions>;
 
@@ -143,6 +147,46 @@ const foldersReducer: StateReducer<FoldersState, FoldersActions> = (
           title: { text: action.payload },
         },
         isTouched: true,
+      };
+    case 'setEmoticon':
+      return {
+        ...state,
+        folder: {
+          ...state.folder,
+          emoticon: action.payload.emoji,
+          title: action.payload.addToEnd ? { text: state.folder.title.text + action.payload.emoji, ...state.folder } : state.folder.title
+        },
+        isTouched: true,
+      };
+    case 'setCustomEmoticon':
+      const requestedEmoji = action.payload as ApiSticker;
+      // convert the emoji to HTML, then to ApiFormattedText, to convert it into an entity
+      const newEmoticonEntities = parseHtmlAsFormattedText(buildCustomEmojiHtml(requestedEmoji)).entities;
+      const newEmoticonEntity = newEmoticonEntities ? newEmoticonEntities[0] : undefined;
+      const newText = state.folder.title.text + requestedEmoji.emoji;
+      // update its offset
+      if (newEmoticonEntity) {
+        newEmoticonEntity.offset = newText.indexOf(requestedEmoji.emoji!)
+      }
+      return {
+        ...state,
+        folder: {
+          ...state.folder,
+          emoticon: requestedEmoji.emoji,
+          title: {
+            text: newText,
+            entities: state.folder.title.entities && newEmoticonEntity
+              // if both exist concatenate the new entity to the old entity list
+              ? state.folder.title.entities.concat(newEmoticonEntity)
+              // otherwise if only the new entity exists, set it as the entities array
+              : (newEmoticonEntity
+                ? [newEmoticonEntity]
+                // if nothing was generated set the entity list to undefined
+                : undefined
+              )
+          }
+        },
+        isTouched: true
       };
     case 'setFolderId':
       return {

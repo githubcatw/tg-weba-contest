@@ -22,6 +22,7 @@ type OwnProps = {
   autoComplete?: string;
   maxLength?: number;
   tabIndex?: number;
+  endIcon?: React.JSX.Element;
   teactExperimentControlled?: boolean;
   inputMode?: 'text' | 'none' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -47,6 +48,7 @@ const InputText: FC<OwnProps> = ({
   inputMode,
   maxLength,
   tabIndex,
+  endIcon,
   teactExperimentControlled,
   onChange,
   onInput,
@@ -59,6 +61,7 @@ const InputText: FC<OwnProps> = ({
   const labelText = error || success || label;
   const fullClassName = buildClassName(
     'input-group',
+    'form-control-parent',
     value && 'touched',
     error ? 'error' : success && 'success',
     disabled && 'disabled',
@@ -69,10 +72,11 @@ const InputText: FC<OwnProps> = ({
 
   return (
     <div className={fullClassName} dir={lang.isRtl ? 'rtl' : undefined}>
+      <div className='icon-container'>
       <input
         ref={ref}
-        className="form-control"
         type="text"
+        className='form-control'
         id={id}
         dir="auto"
         value={value || ''}
@@ -92,6 +96,10 @@ const InputText: FC<OwnProps> = ({
         aria-label={labelText}
         teactExperimentControlled={teactExperimentControlled}
       />
+      {endIcon && (
+        endIcon
+      )}
+      </div>
       {labelText && (
         <label htmlFor={id}>{labelText}</label>
       )}

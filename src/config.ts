@@ -2,6 +2,8 @@ import type {
   ApiLimitType, ApiLimitTypeForPromo, ApiPremiumSection, ApiReactionEmoji,
 } from './api/types';
 
+import type { IconName } from './types/icons';
+
 export const APP_CODE_NAME = 'A';
 export const APP_NAME = process.env.APP_NAME || `Telegram Web ${APP_CODE_NAME}`;
 export const RELEASE_DATETIME = process.env.RELEASE_DATETIME;
@@ -215,6 +217,7 @@ export const FAVORITE_SYMBOL_SET_ID = 'favorite';
 export const EFFECT_STICKERS_SET_ID = 'effectStickers';
 export const EFFECT_EMOJIS_SET_ID = 'effectEmojis';
 export const CHAT_STICKER_SET_ID = 'chatStickers';
+export const FOLDER_SYMBOL_SET_ID = 'folderIcons';
 export const DEFAULT_TOPIC_ICON_STICKER_ID = 'topic-default-icon';
 export const DEFAULT_STATUS_ICON_ID = 'status-default-icon';
 export const EMOJI_IMG_REGEX = /<img[^>]+alt="([^"]+)"(?![^>]*data-document-id)[^>]*>/gm;
@@ -427,3 +430,26 @@ export const PREMIUM_LIMITS_ORDER: ApiLimitTypeForPromo[] = [
   'dialogFiltersChats',
   'recommendedChannels',
 ];
+
+export const FOLDER_ICON_EMOTICONS: Record<string, IconName> = {
+  "👤": "folder-user",
+  "🤖": "folder-bot",
+  "📢": "folder-channel",
+  "⭐": "folder-star",
+  "📁": "folder-default",
+  "💬": "folder-chats",
+  "✅": "folder-chat"
+}
+
+export const FOLDER_ICON_EMOJI: string[] = [
+  "white_check_mark",
+  "speech_balloon",
+  "bust_in_silhouette",
+  "star",
+  "loudspeaker",
+  "robot_face",
+  "file_folder"
+] as const;
+
+// Sets in this list will be rendered without names.
+export const UNNAMED_SYMBOL_SETS: string[] = [FOLDER_SYMBOL_SET_ID] as const;

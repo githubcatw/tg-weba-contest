@@ -351,9 +351,9 @@ function MiddleColumn({
 
   const {
     initResize, resetResize, handleMouseUp,
-  } = useResize(leftColumnRef, (n) => setLeftColumnWidth({
+  } = useResize(leftColumnRef, (n) => {setLeftColumnWidth({
     leftColumnWidth: n,
-  }), resetLeftColumnWidth, leftColumnWidth, '--left-column-width');
+  })}, resetLeftColumnWidth, leftColumnWidth, '--left-column-width');
 
   const handleDragEnter = useLastCallback((e: React.DragEvent<HTMLDivElement>) => {
     const { items } = e.dataTransfer || {};
